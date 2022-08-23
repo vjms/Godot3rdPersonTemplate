@@ -1,13 +1,14 @@
 extends KinematicBody
 
 onready var _camera_anchor = $CameraAnchor
+onready var _model = $Model
 
 var _max_speed = 10.0
 var _acceleration = 5.0
 var _deceleration = 10.0
+var _mouse_sensitivity = 0.005
 var _velocity := Vector3.ZERO
 var _gravity := -9.81
-var _mouse_sensitivity = 0.005
 
 
 func _ready():
@@ -37,10 +38,15 @@ func _physics_process(delta):
 		var rot = -_camera_anchor.get_rotation().y
 		move_vector = move_vector.normalized().rotated(rot)
 		tmp = lerp(tmp, move_vector * _max_speed, delta * _acceleration)
+
+		
 	else:
 		tmp = lerp(tmp, Vector2.ZERO, delta * _deceleration)
-
+		
 	_velocity.x = tmp.x
 	_velocity.z = tmp.y
 	_velocity.y += _gravity * delta
 	_velocity = move_and_slide(_velocity, Vector3.UP)
+
+	if _velocity.length_squared() > 0.5:
+		_model.rotation.y = tmp.angle_to(Vector2.RIGHT)
