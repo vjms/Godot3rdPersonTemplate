@@ -39,14 +39,15 @@ func _physics_process(delta):
 		move_vector = move_vector.normalized().rotated(rot)
 		tmp = lerp(tmp, move_vector * _max_speed, delta * _acceleration)
 
-		
 	else:
 		tmp = lerp(tmp, Vector2.ZERO, delta * _deceleration)
-		
+
 	_velocity.x = tmp.x
 	_velocity.z = tmp.y
 	_velocity.y += _gravity * delta
 	_velocity = move_and_slide(_velocity, Vector3.UP)
 
+	# When the new velocity is close to zero, the model starts to jiggle when the camera is rotated.
+	# Checking that the velocity is non-zero removes that.
 	if _velocity.length_squared() > 0.5:
 		_model.rotation.y = tmp.angle_to(Vector2.RIGHT)
