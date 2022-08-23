@@ -7,6 +7,7 @@ var _max_speed = 10.0
 var _acceleration = 5.0
 var _deceleration = 10.0
 var _jump_force = 5.0
+var _air_control = 1.0
 var _mouse_sensitivity = 0.005
 var _velocity := Vector3.ZERO
 var _gravity := -9.81
@@ -38,14 +39,17 @@ func _physics_process(delta):
 
 	var tmp = Vector2(_velocity.x, _velocity.z)
 
-	if move_vector.length_squared() > 0.2:
+	if is_moving(move_vector):
 		var rot = -_camera_anchor.get_rotation().y
 		move_vector = move_vector.normalized().rotated(rot)
-		tmp = lerp(tmp, move_vector * _max_speed, delta * _acceleration)
-
+		if is_on_floor():
+			tmp = lerp(tmp, move_vector * _max_speed, delta * _acceleration)
+		else:
+			tmp = lerp(tmp, move_vector * _max_speed, delta * _air_control)
 	else:
-		tmp = lerp(tmp, Vector2.ZERO, delta * _deceleration)
-
+		if is_on_floor():
+			tmp = lerp(tmp, Vector2.ZERO, delta * _deceleration)
+	
 	_velocity.x = tmp.x
 	_velocity.z = tmp.y
 	_velocity.y += _gravity * delta
@@ -55,6 +59,9 @@ func _physics_process(delta):
 	# Checking that the velocity is non-zero removes that.
 	if _velocity.length_squared() > 0.5:
 		_model.rotation.y = tmp.angle_to(Vector2.RIGHT)
+
+func is_moving(move_vector :Vector2):
+	return move_vector.length_squared() > 0.2
 
 func jump():
 	if is_on_floor():
