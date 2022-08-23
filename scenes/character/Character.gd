@@ -7,6 +7,17 @@ var _acceleration = 5.0
 var _deceleration = 10.0
 var _velocity := Vector3.ZERO
 var _gravity := -9.81
+var _mouse_sensitivity = 0.005
+
+
+func _ready():
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+
+func _input(event):
+	if event is InputEventMouseMotion:
+		event = event as InputEventMouseMotion
+		_camera_anchor.rotate(Vector3.UP, -event.get_relative().x * _mouse_sensitivity)
 
 
 func _physics_process(delta):
@@ -23,7 +34,9 @@ func _physics_process(delta):
 	var tmp = Vector2(_velocity.x, _velocity.z)
 
 	if move_vector.length_squared() > 0.2:
-		tmp = lerp(tmp, move_vector.normalized() * _max_speed, delta * _acceleration)
+		var rot = -_camera_anchor.get_rotation().y
+		move_vector = move_vector.normalized().rotated(rot)
+		tmp = lerp(tmp, move_vector * _max_speed, delta * _acceleration)
 	else:
 		tmp = lerp(tmp, Vector2.ZERO, delta * _deceleration)
 
