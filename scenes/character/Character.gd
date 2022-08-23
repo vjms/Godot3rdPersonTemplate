@@ -6,6 +6,7 @@ onready var _model = $Model
 var _max_speed = 10.0
 var _acceleration = 5.0
 var _deceleration = 10.0
+var _jump_force = 5.0
 var _mouse_sensitivity = 0.005
 var _velocity := Vector3.ZERO
 var _gravity := -9.81
@@ -32,6 +33,9 @@ func _physics_process(delta):
 	if Input.is_action_pressed("move_left"):
 		move_vector.y -= 1.0
 
+	if Input.is_action_just_pressed("jump"):
+		jump()
+
 	var tmp = Vector2(_velocity.x, _velocity.z)
 
 	if move_vector.length_squared() > 0.2:
@@ -51,3 +55,7 @@ func _physics_process(delta):
 	# Checking that the velocity is non-zero removes that.
 	if _velocity.length_squared() > 0.5:
 		_model.rotation.y = tmp.angle_to(Vector2.RIGHT)
+
+func jump():
+	if is_on_floor():
+		_velocity.y = _jump_force
